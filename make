@@ -42,8 +42,9 @@ target.build = ->
   module_files = ( "src/#{module}.js" for module in modules )
   intro = "/* Zepto #{describe_version()} - #{modules.join(' ')} - zeptojs.com/license */\n"
   dist = cat(module_files).replace(/^\/[\/*].*$/mg, '').replace(/\n{3,}/g, "\n\n")
-  dist = cat('src/amd_layout.js').replace(/YIELD/, -> dist.trim()) unless env['NOAMD']
-  (intro + dist).to(zepto_js)
+  ## dist = cat('src/amd_layout.js').replace(/YIELD/, -> dist.trim()) unless env['NOAMD']
+  wrapper = cat("src/wrapper.js").replace(/\/\/ @CODE/, -> dist.trim()) unless env['NOAMD']
+  (intro + wrapper).to(zepto_js)
   report_size(zepto_js)
 
 target.minify = ->
@@ -103,7 +104,7 @@ git_version = ->
   desc.output.replace(/\s+$/, '') if desc.code is 0
 
 describe_version = ->
-  git_version() || package_version()
+  package_version() || git_version()
 
 minify = (source_code) ->
   uglify = require('uglify-js')
